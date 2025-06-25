@@ -1,5 +1,7 @@
 import client
 import math
+# from keras.models import load_model
+from tensorflow.keras.models import load_model
 
 ##
 # Inputs:  
@@ -19,30 +21,11 @@ count = 0
 class maxVerstapte:
     def __init__(self):
         self.Client = client.Client
+        self.model = load_model("model/torcs_ai_model.h5")
 
     def drive(self, c):
         S, R = c.S.d, c.R.d
-        target_speed = 100
-        print(S)
-
-        # Steer To Corner
-        R['steer'] = S['angle'] * 10 / math.pi
-        # Steer To Center
-        R['steer'] -= S['trackPos'] * .10
-
-        # Throttle Control
-        if S['speedX'] < target_speed - (R['steer'] * 50):
-            R['accel'] += .01
-        else:
-            R['accel'] -= .01
-        if S['speedX'] < 10:
-            R['accel'] += 1 / (S['speedX'] + .1)
-
-        # Traction Control System
-        if ((S['wheelSpinVel'][2] + S['wheelSpinVel'][3]) -
-                (S['wheelSpinVel'][0] + S['wheelSpinVel'][1]) > 5):
-            R['accel'] -= .2
-
+        
         # Automatic Transmission
         R['gear'] = 1
         if S['speedX'] > 50:
