@@ -98,7 +98,7 @@
 
       <section name="2">
         <attstr name="transmission" in="auto,manual" val="auto"/>
-        <attstr name="ABS on" in="yes,no" val="no"/>
+        <attstr name="ABS on" in="yes,no" val="yes"/>
         <attstr name="ASR on" in="yes,no" val="yes"/>
         <attnum name="programmed pit stops" val="0"/>
         <attstr name="auto reverse" val="yes"/>
