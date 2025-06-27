@@ -5,57 +5,26 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import MeanAbsoluteError
+from tensorflow.keras.callbacks import EarlyStopping
 import joblib
 
 # Configuration
-TRACK_SENSORS_COUNT = 19  # TORCS default
 MODEL_PATH = 'torcs_ai_model.h5'
 SCALER_PATH = 'torcs_scaler.save'
 
 def load_data(csv_path):
     """Load numeric data from CSV, trying multiple parsing methods."""
     try:
-        # Attempt pandas read first
-        try:
-            df = pd.read_csv(csv_path, comment='#')
-            df = df.apply(pd.to_numeric, errors='coerce').dropna()
-            if not df.empty:
-                return df.values
-        except:
-            pass
-
-        # Manual fallback parsing
-        with open(csv_path) as f:
-            data = []
-            for line in f:
-                line = line.strip()
-                if not line or line.split()[0] in ('speed', 'dist', 'Sensor'):
-                    continue
-
-                # Split by commas, spaces, or tabs and convert to float
-                values = []
-                for x in re.split(r'[, \t]+', line):
-                    try:
-                        values.append(float(x))
-                    except ValueError:
-                        continue
-
-                if len(values) >= TRACK_SENSORS_COUNT + 7:
-                    data.append(values)
-
-            if data:
-                return np.array(data)
-
-        raise ValueError("No valid numeric data found")
+        df = pd.read_csv(csv_path, comment='#')
+        df = df.apply(pd.to_numeric, errors='coerce').dropna()
+        if not df.empty:
+            return df.values
 
     except Exception as e:
-        print(f"Failed to load {csv_path}: {e}\n"
-              "Ensure:\n"
-              f"- File exists and has {TRACK_SENSORS_COUNT + 7}+ numeric values per line\n"
-              "- Values separated by commas/spaces/tabs")
+        print(f"Failed to load {csv_path}: {e}\n")
         return None
 
 def prepare_data(data):
@@ -63,7 +32,7 @@ def prepare_data(data):
     if data is None or len(data) == 0:
         raise ValueError("Invalid data input for preparation")
 
-    y = data[:, :3]  # First 3 columns as actions
+    y = data[:, :3]  # First 5 columns as actions
     X = data[:, 3:]  # Remaining columns as features (sensors + state)
 
     # Clip actions to valid ranges as per TORCS requirements
@@ -80,7 +49,7 @@ def build_model(input_dim):
         Dropout(0.3),
         Dense(64, activation='relu'),
         Dense(32, activation='relu'),
-        Dense(3, activation='tanh')  # Output scaled [-1,1]
+        Dense(3, activation='tanh')
     ])
 
     model.compile(
@@ -106,13 +75,13 @@ def train(csv_path):
 
     # Train/validation split
     xTrain, X_val, yTrain, yVal = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=0.2, random_state=42, shuffle=True
     )
 
     # Feature scaling
     scaler = StandardScaler()
     xTrain = scaler.fit_transform(xTrain)
-    X_val = scaler.transform(X_val)
+    X_val = scaler.transform(X_val) 
     joblib.dump(scaler, SCALER_PATH)
 
     # Build and train model
@@ -122,9 +91,12 @@ def train(csv_path):
     history = model.fit(
         xTrain, yTrain,
         validation_data=(X_val, yVal),
-        epochs=100,
-        batch_size=64,
-        verbose=1
+        epochs=500,
+        batch_size=256,
+        verbose=1,
+        callbacks = [
+            EarlyStopping(min_delta=1e-4, patience=15)
+]
     )
 
     # Save as HDF5
@@ -148,4 +120,4 @@ def train(csv_path):
     return model, scaler
 
 if __name__ == "__main__":
-    train("../combined_data.csv")
+    train("train_data/combined_data.csv")

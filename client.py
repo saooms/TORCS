@@ -145,8 +145,7 @@ class Client():
         self.S = ServerState()
         self.R = DriverAction()
         self.P = None
-        self.stds = np.load('./model/stds.npy', allow_pickle=True)
-        self.means = np.load('./model/means.npy', allow_pickle=True)
+
 
         if f: self.pfilename = f
         pfile = open(self.pfilename, 'r')
@@ -164,12 +163,13 @@ class Client():
         self.so.settimeout(1)
         while True:
             # This string establishes track sensor angles! You can customize them.
+            a= "-90 -80 -70 -60 -50 -40 -30 -20 -10 0 10 20 30 40 50 60 70 80 90"
             # a= "-90 -75 -60 -45 -30 -20 -15 -10 -5 0 5 10 15 20 30 45 60 75 90"
             # xed- Going to try something a bit more aggressive...
             # a= "-36 -32 -28 -24 -20 -16 -12 -8 -4 0 4 8 12 16 20 24 28 32 36"
             # a= "-45 -36 -27.5 -19 -13 -8.4 -4 -1.7 -.5 0 .5 1.7 4 8.4 13 19 27.5 36 45"
             # a= "-45 -27.5 -19 -13 -10 -8.4 -4 -1.7 -.5 0 .5 1.7 4 8.4 10 13 19 27.5 45"
-            a = "-90 -75 -50 -35 -20 -15 -10 -5 -1 0 1 5 10 15 20 35 50 75 90"
+            # a = "-90 -75 -50 -35 -20 -15 -10 -5 -1 0 1 5 10 15 20 35 50 75 90"
             # xed- Going to try something a lot more aggressive...
             # a= "-16.699244234 -8.53076560995 -5.7105931375 -4.28915332882 -3.43363036245 -2.86240522611 -2.45403167453 -2.1475854283 -1.909152433 0 1.909152433 2.1475854283 2.45403167453 2.86240522611 3.43363036245 4.28915332882 5.7105931375 8.53076560995 16.699244234"
 
@@ -324,24 +324,24 @@ class ServerState():
         sensors = [  # Select the ones you want in the order you want them.
             # 'curLapTime',
             # 'lastLapTime',
-            'stucktimer',
+            # 'stucktimer',
             # 'damage',
             # 'focus',
-            'fuel',
+            # 'fuel',
             # 'gear',
-            'distRaced',
-            'distFromStart',
+            # 'distRaced',
+            # 'distFromStart',
             # 'racePos',
-            'opponents',
-            'wheelSpinVel',
-            'z',
-            'speedZ',
-            'speedY',
+            # 'opponents',
+            # 'wheelSpinVel',
+            # 'z',
+            # 'speedZ',
+            # 'speedY',
             'speedX',
-            'targetSpeed',
+            # 'targetSpeed',
             'rpm',
-            'skid',
-            'slip',
+            # 'skid',
+            # 'slip',
             'track',
             'trackPos',
             'angle',
@@ -539,107 +539,3 @@ def destringify(s):
             return destringify(s[0])
         else:
             return [destringify(i) for i in s]
-
-
-def drive_example(c):
-    '''This is only an example. It will get around the track but the
-    correct thing to do is write your own `drive()` function.'''
-    S, R = c.S.d, c.R.d
-    target_speed = 100
-
-    # Steer To Corner
-    R['steer'] = S['angle'] * 10 / PI
-    # Steer To Center
-    R['steer'] -= S['trackPos'] * .10
-
-    # Throttle Control
-    if S['speedX'] < target_speed - (R['steer'] * 50):
-        R['accel'] += .01
-    else:
-        R['accel'] -= .01
-    if S['speedX'] < 10:
-        R['accel'] += 1 / (S['speedX'] + .1)
-
-    # Traction Control System
-    if ((S['wheelSpinVel'][2] + S['wheelSpinVel'][3]) -
-            (S['wheelSpinVel'][0] + S['wheelSpinVel'][1]) > 5):
-        R['accel'] -= .2
-
-    # Automatic Transmission
-    R['gear'] = 1
-    if S['speedX'] > 50:
-        R['gear'] = 2
-    if S['speedX'] > 80:
-        R['gear'] = 3
-    if S['speedX'] > 110:
-        R['gear'] = 4
-    if S['speedX'] > 140:
-        R['gear'] = 5
-    if S['speedX'] > 170:
-        R['gear'] = 6
-    return
-
-
-def my_drive_fn(c, model):
-    S, R = c.S.d, c.R.d
-    gear = S['gear']
-    rpm = S['rpm']
-    # logic for reverse start
-    global count
-    if rpm >= 9200 and gear < 6:
-        gear += 1
-        count = 0
-    elif rpm <= 5500 and gear > 1:
-        gear -= 1
-        count = 0
-    if int(S['distRaced']) > 2 and S['speedX'] < 4:
-        count += 1
-    if 20 <= count < 1200 * 3:
-        gear = -1
-        count += 1
-    if count >= 1200 * 3:
-        gear = 1
-        count = 0
-    # logic for reverse end
-    test_example = np.ndarray((71,), dtype=np.float64)
-    R['gear'] = gear
-    test_example[0] = S['angle']
-    test_example[1] = S['distFromStart']
-    test_example[2] = S['distRaced']
-    test_example[3] = S['fuel']
-    test_example[4] = S['gear']
-    test_example[5:41] = S['opponents']
-    test_example[41] = S['racePos']
-    test_example[42] = S['rpm']
-    test_example[43] = S['speedX']
-    test_example[44] = S['speedY']
-    test_example[45] = S['speedZ']
-    test_example[46:65] = S['track']
-    test_example[65] = S['trackPos']
-    test_example[66:70] = S['wheelSpinVel']
-    test_example[70] = S['z']
-
-    test_example = test_example - c.means
-    test_example = test_example / c.stds
-    predictions = model.predict(test_example.reshape(1, -1), batch_size=1).flatten()
-    print(predictions)
-
-    R['accel'] = predictions[0]
-    R['brake'] = predictions[1]
-    R['clutch'] = predictions[2]
-    R['steer'] = predictions[3]
-
-    return
-
-
-# ================ MAIN ================
-if __name__ == "__main__":
-    model = load_model(r'./model/FullModel_Symm1024_b2048.h5')
-    C = Client()
-    count = 0
-    for step in range(C.maxSteps, 0, -1):
-        C.get_servers_input()
-        if step % 3 == 0:
-            my_drive_fn(C, model)
-            C.respond_to_server()
-    C.shutdown()
