@@ -70,6 +70,8 @@
       <attnum name="camera" val="0"/>
       <attnum name="camera head list" val="0"/>
       <attnum name="fovy-0-0" val="40"/>
+      <attnum name="fovy-2-0" val="30"/>
+      <attnum name="fovy-2-2" val="30"/>
     </section>
 
     <section name="1">
@@ -82,6 +84,11 @@
 
     <section name="3">
       <attnum name="fovy-9-0" val="9"/>
+    </section>
+
+    <section name="scr_server 1">
+      <attnum name="camera" val="0"/>
+      <attnum name="camera head list" val="0"/>
     </section>
 
   </section>

@@ -6,13 +6,15 @@ def convert_torcs_csv(input_file, output_file):
     
     # Mapping between your desired names and original column names
     column_mapping = {
-        'ACCELERATION': 'accel',
-        'BRAKE': 'brake',
-        'STEERING': 'steer',
-        'SPEED': 'speedX',
-        'TRACK_POSITION': 'trackPos',
-        'ANGLE_TO_TRACK_AXIS': 'angle',
-        **{f'TRACK_EDGE_{i}': f'track{i+1}' for i in range(18)}
+        'ACCELERATION': 'Acceleration', 
+        'BRAKE': 'Braking',
+        # 'CLUTCH': 'Clutch',
+        'STEERING': 'Steering',
+
+        'ANGLE': 'Angle',
+        'TRACK_POSITION': 'TrackPosition',
+        'SPEED': 'SpeedX',
+        **{f'TRACK_EDGE_{i}': f'Track_{i}' for i in range(1,20)}
     }
     
     # Create new DataFrame with only the columns we want
@@ -30,4 +32,4 @@ def convert_torcs_csv(input_file, output_file):
     print(f"Successfully created standardized file: {output_file}")
 
 # Usage example
-convert_torcs_csv("1.csv", "standardized_torcs_data.csv")
+convert_torcs_csv("model/train_data/data9.csv", "standardized_torcs_data.csv")
