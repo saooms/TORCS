@@ -45,15 +45,16 @@ def prepare_data(data):
 def build_model(input_dim):
     """Create optimized neural network architecture"""
     model = Sequential([
-        Dense(128, input_dim=input_dim, activation='relu', kernel_initializer='he_normal'),
+        Dense(32, input_dim=input_dim, activation='relu', kernel_initializer='he_normal'),
         Dropout(0.3),
-        Dense(64, activation='relu'),
-        Dense(32, activation='relu'),
-        Dense(3, activation='tanh')
+        Dense(16, activation='relu'),
+        Dense(8, activation='relu'),
+            Dense(3, activation='tanh')
     ])
 
     model.compile(
-        optimizer=Adam(learning_rate=0.001),
+        # optimizer=Adam(learning_rate=0.001),
+        optimizer="adam",
         loss=MeanSquaredError(),
         metrics=[MeanAbsoluteError()]
     )

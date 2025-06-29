@@ -17,7 +17,6 @@
       </section>
 
       <section name="2">
-        <attstr name="name" val="scr_server 1"/>
         <attstr name="car name" val="car1-trb3"/>
         <attnum name="race number" val="0"/>
         <attnum name="red" val="1"/>
