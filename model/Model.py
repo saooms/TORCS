@@ -32,7 +32,7 @@ def prepare_data(data):
     if data is None or len(data) == 0:
         raise ValueError("Invalid data input for preparation")
 
-    y = data[:, :3]  # First 5 columns as actions
+    y = data[:, :3]  # First 3 columns as actions
     X = data[:, 3:]  # Remaining columns as features (sensors + state)
 
     # Clip actions to valid ranges as per TORCS requirements
@@ -45,16 +45,15 @@ def prepare_data(data):
 def build_model(input_dim):
     """Create optimized neural network architecture"""
     model = Sequential([
-        Dense(32, input_dim=input_dim, activation='relu', kernel_initializer='he_normal'),
+        Dense(128, input_dim=input_dim, activation='relu', kernel_initializer='he_normal'),
         Dropout(0.3),
-        Dense(16, activation='relu'),
-        Dense(8, activation='relu'),
-            Dense(3, activation='tanh')
+        Dense(64, activation='relu'),
+        Dense(32, activation='relu'),
+        Dense(3, activation='tanh')
     ])
 
     model.compile(
-        # optimizer=Adam(learning_rate=0.001),
-        optimizer="adam",
+        optimizer=Adam(learning_rate=0.001),
         loss=MeanSquaredError(),
         metrics=[MeanAbsoluteError()]
     )
@@ -97,7 +96,7 @@ def train(csv_path):
         verbose=1,
         callbacks = [
             EarlyStopping(min_delta=1e-4, patience=15)
-]
+        ]
     )
 
     # Save as HDF5
