@@ -1,5 +1,5 @@
 # Autonomous driver TORCS: Max Verstapte
-
+This project trained a model to drive autonomously as a bot for the TORCS Racing environment. The TORCS client code is based on the [TORCS-Self-Driving-Agent](https://github.com/CognitiaAI/TORCS-Self-Driving-Agent) by CognitiaAI.
 
 ## Used Libraries
 
