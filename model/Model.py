@@ -5,7 +5,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.optimizers import Adam, SGD
 from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.metrics import MeanAbsoluteError
 from tensorflow.keras.callbacks import EarlyStopping
@@ -53,7 +52,7 @@ def build_model(input_dim):
     ])
 
     model.compile(
-        optimizer=Adam(learning_rate=0.001),
+        optimizer="adam",
         loss=MeanSquaredError(),
         metrics=[MeanAbsoluteError()]
     )
