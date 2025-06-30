@@ -11,7 +11,7 @@ This project trained a model to drive autonomously as a bot for the TORCS Racing
 # How to use
 
 ## Pre-requisite
-1. Anaconda python installed. In case anaconda is not installed, follow [Anaconda Installation](https://github.com/CognitiaAI/TORCS-Self-Driving-Agent) and install anaconda.
+1. Anaconda python installed. In case anaconda is not installed, follow [Anaconda Installation](https://www.anaconda.com/download/success) and install anaconda.
 2. Clone the repository and import the environment by running `conda env create -f torcs_env.yml`.
 
 ## Run the server
